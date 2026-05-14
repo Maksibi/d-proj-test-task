@@ -1,5 +1,6 @@
 using GameNetworking.Messages;
 using Mirror;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -9,6 +10,8 @@ namespace GameNetworking
     public class HelloDemoNetworkManager : NetworkManager
     {
         const string GameplaySceneNameForDiFallback = "Main";
+
+        [SerializeField] private TMP_Text _clientHelloText;
 
         INetworkMessageSubscriptionService _subscriptions;
 
@@ -60,8 +63,15 @@ namespace GameNetworking
 
         public override void OnClientConnect()
         {
-            _subscriptions?.ClientSubscribe<HelloMessage>(msg => Debug.Log(msg.Text));
+            _subscriptions?.ClientSubscribe<HelloMessage>(OnHelloMessageReceived);
             base.OnClientConnect();
+        }
+
+        private void OnHelloMessageReceived(HelloMessage msg)
+        {
+            Debug.Log(msg.Text);
+            if (_clientHelloText != null)
+                _clientHelloText.text = msg.Text;
         }
 
         public override void OnStopServer()
